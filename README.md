@@ -1,9 +1,12 @@
 
 # SNI Checker Bot
-Ping-Speed-TLS1.3-Validity-checker
+**Ping-Speed-TLS1.3-Validity-checker**
 
 🚀 **SNI Checker Bot** is a fast and reliable Telegram bot for checking Ping, Speed, and TLS validity of servers.
 
+---
+
+*Enjoying this project? Show your support by giving it a ⭐ on GitHub!*
 ---
 
 ## Features
@@ -45,23 +48,23 @@ bash <(curl -Ls https://raw.githubusercontent.com/rezajavadi995/Ping-Speed-TLS1.
 6. Sets up a systemd service to run the bot in the background
 
 ---
-Check bot status:
+## Check bot status:
 ```
 sudo systemctl status sni-checker.service
 ```
 
-View logs in real-time:
+## View logs in real-time:
 ```
 sudo journalctl -u sni-checker.service -f
 ```
 
-Restart the bot:
+## Restart the bot:
 ```
 sudo systemctl restart sni-checker.service
 ```
 ---
 
-Getting Your Telegram Bot Token
+## Getting Your Telegram Bot Token
 
 1. Open BotFather on Telegram
 
@@ -77,7 +80,7 @@ Getting Your Telegram Bot Token
 
 ---
 
-Configuration
+## Configuration
 
 The .env file is created automatically in /opt/ping-speed-tls-checker/.
 It contains:
@@ -86,21 +89,23 @@ TELEGRAM_TOKEN=YOUR_BOT_TOKEN_HERE
 
 ---
 
-Uninstall
+## Uninstall
 
 If you want to remove the bot:
 ```
 sudo systemctl stop sni-checker.service
 ```
+---
 ```
 sudo systemctl disable sni-checker.service
 ```
+---
 ```
 rm -rf /opt/ping-speed-tls-checker
 ```
 ---
 
-Support
+## Support
 
 If you encounter issues:
 
@@ -112,7 +117,7 @@ Ensure your .env file has a valid Telegram token
 
 ---
 
-License
+## License
 
 MIT License
 
