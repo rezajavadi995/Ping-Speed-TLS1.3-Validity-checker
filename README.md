@@ -1,22 +1,118 @@
 # Ping-Speed-TLS1.3-Validity-checker
-0. apt install python3-pip
+# SNI Checker Bot
 
-1. Copy the code.
+🚀 **SNI Checker Bot** is a fast and reliable Telegram bot for checking Ping, Speed, and TLS validity of servers.
 
-2. Add your Telegram bot token.
+---
 
-3. Create the file:
-   cat > /root/sni.py
+## Features
 
-4. Copy the requirements.txt content and create the file:
-   cat > /root/requirements.txt
+- Check server ping and speed automatically
+- Validate TLS 1.3 configuration
+- Real-time results via Telegram bot
+- Auto scheduler to run checks periodically
+- Simple setup with systemd service for auto-start
 
-5. Install the requirements:
-   pip install -r requirements.txt
+---
 
-6. Run the bot:
-   python3 sni.py
+## Fast Install (1 Command)
 
-7. Start your bot.
+Install and configure the bot with just one command:
 
-Note: Do not close the terminal while the app is running.
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/rezajavadi995/Ping-Speed-TLS1.3-Validity-checker/main/install.sh)
+```
+---
+
+## What happens:
+
+1. Installs required packages (python3, pip, venv, etc.)
+
+
+2. Sets up a virtual environment
+
+
+3. Installs Python dependencies from requirements.txt
+
+
+4. Prompts you to enter your Telegram Bot Token
+
+
+5. Creates .env file automatically
+
+
+6. Sets up a systemd service to run the bot in the background
+
+---
+Check bot status:
+```
+sudo systemctl status sni-checker.service
+```
+
+View logs in real-time:
+```
+sudo journalctl -u sni-checker.service -f
+```
+
+Restart the bot:
+```
+sudo systemctl restart sni-checker.service
+```
+---
+
+Getting Your Telegram Bot Token
+
+1. Open BotFather on Telegram
+
+
+2. Use /newbot to create a new bot
+
+
+3. Copy the generated token
+
+
+4. Enter it when prompted during installation
+
+
+---
+
+Configuration
+
+The .env file is created automatically in /opt/ping-speed-tls-checker/.
+It contains:
+
+TELEGRAM_TOKEN=YOUR_BOT_TOKEN_HERE
+
+---
+
+Uninstall
+
+If you want to remove the bot:
+```
+sudo systemctl stop sni-checker.service
+```
+```
+sudo systemctl disable sni-checker.service
+```
+```
+rm -rf /opt/ping-speed-tls-checker
+```
+---
+
+Support
+
+If you encounter issues:
+
+Check the logs: ```sudo journalctl -u sni-checker.service -f```
+
+Make sure Python dependencies are installed correctly
+
+Ensure your .env file has a valid Telegram token
+
+---
+
+License
+
+MIT License
+
+---
