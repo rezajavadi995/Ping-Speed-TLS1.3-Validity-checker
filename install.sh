@@ -6,47 +6,47 @@ REPO_DIR="/opt/ping-speed-tls-checker"
 SERVICE_NAME="sni-checker.service"
 VENV_DIR="$REPO_DIR/venv"
 
-echo "=== شروع نصب پروژه ==="
+echo "=== شروع نصب پروژه SNI Checker ==="
 
-# نیازمندی‌های سیستم (برای دبیان/اوبونتو)
+# نصب نیازمندی‌های سیستم (Debian/Ubuntu)
 if command -v apt-get >/dev/null 2>&1; then
-  sudo apt-get update
-  sudo apt-get install -y python3 python3-venv python3-pip git curl
+    sudo apt-get update
+    sudo apt-get install -y python3 python3-venv python3-pip git curl
 fi
 
-# کلون ریپو
+# کلون یا به‌روزرسانی ریپو
 if [ -d "$REPO_DIR" ]; then
-  echo "پوشه $REPO_DIR موجود است، آن را به‌روزرسانی می‌کنم..."
-  cd "$REPO_DIR"
-  git pull
+    echo "پوشه $REPO_DIR موجود است، به‌روزرسانی..."
+    cd "$REPO_DIR"
+    git pull
 else
-  sudo git clone "$REPO_URL" "$REPO_DIR"
-  sudo chown -R "$(whoami)":"$(whoami)" "$REPO_DIR"
-  cd "$REPO_DIR"
+    sudo git clone "$REPO_URL" "$REPO_DIR"
+    sudo chown -R "$(whoami)":"$(whoami)" "$REPO_DIR"
+    cd "$REPO_DIR"
 fi
 
-# محیط مجازی
+# ساخت محیط مجازی
 python3 -m venv "$VENV_DIR"
-# فعال‌سازی و ارتقا pip
 "$VENV_DIR/bin/python" -m pip install --upgrade pip
 
-# نصب نیازمندی‌ها (در صورت نبود requirements.txt، حداقل پکیج‌های اصلی را نصب کن)
+# نصب پکیج‌ها
 if [ -f requirements.txt ]; then
-  "$VENV_DIR/bin/pip" install -r requirements.txt
+    "$VENV_DIR/bin/pip" install -r requirements.txt
 else
-  "$VENV_DIR/bin/pip" install python-telegram-bot "python-telegram-bot[job-queue]" "httpx[http2]" python-dotenv
+    "$VENV_DIR/bin/pip" install python-telegram-bot "python-telegram-bot[job-queue]" httpx[http2] python-dotenv
 fi
-
 
 echo
-echo "لطفاً توکن ربات تلگرام خود را وارد کنید (از BotFather):"
+echo "=== نصب پکیج‌ها کامل شد ==="
+echo "لطفاً حالا توکن ربات تلگرام خود را وارد کنید (از BotFather)."
 read -rp "TELEGRAM_TOKEN: " USER_TOKEN
+
 if [ -z "$USER_TOKEN" ]; then
-  echo "توکن خالی است — نصب متوقف شد."
-  exit 1
+    echo "❌ توکن خالی است — نصب متوقف شد."
+    exit 1
 fi
 
-# ایجاد فایل .env
+# ساخت فایل .env
 cat > "$REPO_DIR/.env" <<EOF
 TELEGRAM_TOKEN=$USER_TOKEN
 EOF
@@ -73,11 +73,11 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# ری‌لود systemd، فعال‌سازی و استارت سرویس
+# ری‌لود systemd و فعال‌سازی سرویس
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
 sudo systemctl restart "$SERVICE_NAME"
 
-echo "=== نصب کامل شد ==="
+echo "✅ نصب و راه‌اندازی کامل شد!"
 echo "برای مشاهده وضعیت سرویس: sudo systemctl status $SERVICE_NAME"
-echo "لاگ‌ها: sudo journalctl -u $SERVICE_NAME -f"
+echo "برای مشاهده لاگ‌ها: sudo journalctl -u $SERVICE_NAME -f"
