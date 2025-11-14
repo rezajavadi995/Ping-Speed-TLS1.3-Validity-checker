@@ -3,6 +3,7 @@ import asyncio
 import ssl
 import time
 import io
+from dotenv import load_dotenv
 import httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -16,7 +17,16 @@ from telegram.ext import (
 from telegram.error import BadRequest
 
 # --- توکن ربات خود را اینجا وارد کنید ---
-TELEGRAM_TOKEN = ""  # <--- !!! مهم: توکن خود را جایگزین کنید
+#TELEGRAM_TOKEN = ""  # <--- !!! مهم: توکن خود را جایگزین کنید
+
+
+
+# بارگذاری متغیرهای محیطی از فایل .env
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+if not TELEGRAM_TOKEN:
+    raise RuntimeError("TELEGRAM_TOKEN not found in environment. Please set TELEGRAM_TOKEN in .env")
 
 
 logging.basicConfig(
