@@ -3,6 +3,7 @@ import asyncio
 import ssl
 import time
 import io
+import os
 from dotenv import load_dotenv
 import httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
