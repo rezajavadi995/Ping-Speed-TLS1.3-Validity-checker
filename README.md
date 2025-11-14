@@ -1,5 +1,6 @@
-# Ping-Speed-TLS1.3-Validity-checker
+
 # SNI Checker Bot
+Ping-Speed-TLS1.3-Validity-checker
 
 🚀 **SNI Checker Bot** is a fast and reliable Telegram bot for checking Ping, Speed, and TLS validity of servers.
 
