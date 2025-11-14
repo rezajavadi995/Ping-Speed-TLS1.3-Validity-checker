@@ -18,16 +18,16 @@ from telegram.error import BadRequest
 # --- توکن ربات خود را اینجا وارد کنید ---
 TELEGRAM_TOKEN = ""  # <--- !!! مهم: توکن خود را جایگزین کنید
 
-# فعال‌سازی لاگ‌گیری برای دیباگ
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# --- بخش توابع اصلی بررسی کننده (تغییر یافته) ---
+
 
 def parse_line(line: str) -> tuple[str | None, str | None]:
-    """خط ورودی را تجزیه می‌کند تا IP و اولین دامنه را استخراج کند."""
+    
     try:
         parts = line.strip().split(maxsplit=1)
         if len(parts) < 2:
@@ -42,7 +42,7 @@ def parse_line(line: str) -> tuple[str | None, str | None]:
         return None, None
 
 async def check_ping(ip: str) -> str:
-    """پینگ IP را بررسی می‌کند."""
+    
     try:
         proc = await asyncio.create_subprocess_exec(
             'ping', '-c', '4', '-W', '2', ip,
@@ -82,9 +82,7 @@ async def check_tls_1_3(domain: str) -> str:
         return "⚠️ Error/Timeout"
 
 async def check_ttfb_and_validity(domain: str) -> tuple[str, str]:
-    """
-    TTFB و "واقعی بودن" سایت را بررسی می‌کند.
-    """
+    
     urls_to_try = [f"https://{domain}", f"http://{domain}"]
     parked_keywords = ["domain is parked", "domain for sale", "domain-geparkt", "website is parked", "fastdomain"]
     
@@ -92,12 +90,11 @@ async def check_ttfb_and_validity(domain: str) -> tuple[str, str]:
         for url in urls_to_try:
             try:
                 start_time = time.monotonic()
-                # استفاده از HEAD برای سرعت بیشتر، اگر خطا داد از GET استفاده می‌کند
                 try:
                     response = await client.head(url)
-                    response.raise_for_status() # اگر 4xx یا 5xx بود، خطا می‌دهد
+                    response.raise_for_status() 
                 except httpx.HTTPStatusError:
-                    response = await client.get(url) # تلاش مجدد با GET
+                    response = await client.get(url)
 
                 ttfb = time.monotonic() - start_time
                 
@@ -124,16 +121,14 @@ async def check_ttfb_and_validity(domain: str) -> tuple[str, str]:
                 
     return "⚠️ Error", "❌ Unreachable"
 
-# --- بخش پردازش اصلی (تغییر یافته) ---
+
 
 async def process_lines_sequentially(lines_list: list[str], query: Update.callback_query) -> str:
-    """
-    خطوط را به صورت ترتیبی پردازش می‌کند، وضعیت را به‌روزرسانی می‌کند و نتایج را اولویت‌بندی می‌کند.
-    """
+
     priority_results = []
     other_results = []
     
-    # هدر جذاب‌تر فایل خروجی
+  
     header = f"{'IP 🖥️':<16} | {'Domain 🌐':<30} | {'Ping 📡':<12} | {'Speed ⚡':<15} | {'TLS 🔒':<15} | {'Validity 📊':<17}"
     separator = "-" * 110
     
@@ -151,14 +146,14 @@ async def process_lines_sequentially(lines_list: list[str], query: Update.callba
     if total_count == 0:
         return "No valid lines found to process."
 
-    # --- حلقه اصلی پردازش ترتیبی ---
+
     for i, (ip, domain) in enumerate(parsed_items):
         current_num = i + 1
         
-        # لاگ در ترمینال
+        
         logger.info(f"[{current_num}/{total_count}] Processing {ip} - {domain}...")
         
-        # اجرای ۳ بررسی به صورت همزمان
+       
         try:
             ping_res, tls_res, (ttfb_res, validity_res) = await asyncio.gather(
                 check_ping(ip),
@@ -169,10 +164,10 @@ async def process_lines_sequentially(lines_list: list[str], query: Update.callba
             logger.error(f"Critical error processing {ip}: {e}")
             ping_res, tls_res, ttfb_res, validity_res = "Job Error", "Job Error", "Job Error", "Job Error"
 
-        # فرمت‌بندی خط نتیجه
+       
         line_str = f"{ip:<16} | {domain:<30} | {ping_res:<12} | {ttfb_res:<15} | {tls_res:<15} | {validity_res:<17}"
 
-        # --- اولویت‌بندی ---
+      
         if tls_res == "✅ Yes":
             priority_results.append(line_str)
         else:
@@ -192,11 +187,11 @@ async def process_lines_sequentially(lines_list: list[str], query: Update.callba
             try:
                 await query.edit_message_text(text=progress_text, parse_mode='Markdown')
             except BadRequest:
-                pass # نادیده گرفتن خطای "Message is not modified"
+                pass 
             except Exception as e:
                 logger.warning(f"Error editing message: {e}")
 
-    # --- ساخت فایل خروجی نهایی ---
+   
     final_output_lines = []
     final_output_lines.append(header)
     final_output_lines.append(separator)
@@ -213,7 +208,7 @@ async def process_lines_sequentially(lines_list: list[str], query: Update.callba
 
     return "\n".join(final_output_lines)
 
-# --- بخش کنترل‌کننده‌های ربات تلگرام ---
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """دستور /start را مدیریت می‌کند."""
@@ -227,7 +222,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """پیام‌های متنی کاربر را جمع‌آوری می‌کند."""
+   
     if 'lines' not in context.user_data:
         context.user_data['lines'] = []
         
@@ -245,16 +240,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     )
 
 
-            
-            
-# ... (بقیه کدها بدون تغییر)
-
-# --- بخش کنترل‌کننده‌های ربات تلگرام (تغییر یافته برای رفع خطا) ---
-
-# ... (توابع start و handle_message بدون تغییر)
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """پاسخ به کلیک روی دکمه «تأیید»."""
+   
     query = update.callback_query
     await query.answer()
 
@@ -262,17 +250,17 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         lines_to_process = context.user_data.get('lines', [])
         
         if not lines_to_process:
-            # از edit_message_text استفاده می‌کنیم چون query.message.chat_id اینجا در دسترس نیست
+        
             await query.edit_message_text(text="❌ لیستی برای پردازش وجود ندارد. لطفاً ابتدا لیست را ارسال کنید.")
             return
 
-        # --- خطوط اصلی که باید ایمن‌سازی شوند ---
+        
         try:
-            # 💡 راه‌حل: chat_id را از پیام اصلی ذخیره می‌کنیم تا در انتهای کار پایدار باشد
+            
             chat_id = query.message.chat_id
         except Exception:
             logger.error("Could not retrieve chat_id safely.")
-            # اگر chat_id پیدا نشد، دیگر نمی‌توانیم کاری انجام دهیم.
+            
             await query.edit_message_text(text="❌ خطای بحرانی: امکان بازیابی شناسه چت وجود نداشت.")
             return
 
@@ -284,7 +272,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         try:
             start_job_time = time.time()
             
-            # فراخوانی تابع جدید پردازش
+            
             results_text = await process_lines_sequentially(lines_to_process, query)
             
             end_job_time = time.time()
@@ -293,16 +281,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             txt_buffer = io.BytesIO(results_text.encode('utf-8'))
             txt_buffer.name = "SNI_Check_Results.txt"
             
-            # 💡 حذف پیام "در حال پردازش..." به صورت ایمن
+           
             try:
                 await query.delete_message()
             except BadRequest as e:
-                # این خطای 'Message to delete not found' را مدیریت می‌کند
+           
                 logger.warning(f"Failed to delete progress message: {e}")
             
-            # ارسال فایل نهایی (با استفاده از chat_id پایدار)
+            
             await context.bot.send_document(
-                chat_id=chat_id, # استفاده از chat_id ذخیره‌شده
+                chat_id=chat_id,
                 document=txt_buffer,
                 caption=f"🏁 **پردازش کامل شد!** 🏁\n\n"
                         f"گزارش کامل در فایل `.txt` ضمیمه شد.\n"
@@ -312,9 +300,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         except Exception as e:
             logger.error(f"Error during processing job: {e}")
             
-            # 💡 ارسال پیام خطا به چت اصلی (با استفاده از chat_id پایدار)
+        
             await context.bot.send_message(
-                chat_id=chat_id, # استفاده از chat_id ذخیره‌شده
+                chat_id=chat_id,
                 text=f"‼️ **خطای بحرانی** ‼️\n\n"
                      f"در هنگام پردازش خطایی رخ داد: {e}"
             )
